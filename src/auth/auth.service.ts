@@ -5,9 +5,15 @@ import { usersTable } from 'lib/drizzle/schema';
 import * as argon2 from 'argon2';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { eq } from 'drizzle-orm';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
+  constructor(
+    // private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
+
   async register(registerAuthDto: RegisterAuthDto) {
     let passwordHash: string;
     try {
@@ -52,6 +58,7 @@ export class AuthService {
       throw new BadRequestException('Invalid username of password.');
     }
 
-    return user[0];
+    const jwtToken = await this.jwtService.signAsync(user[0]);
+    return { token: jwtToken };
   }
 }
