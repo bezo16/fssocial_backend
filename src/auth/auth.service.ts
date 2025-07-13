@@ -4,14 +4,15 @@ import db from 'lib/drizzle';
 import { usersTable } from 'lib/drizzle/schema';
 import * as argon2 from 'argon2';
 import { LoginAuthDto } from './dto/login-auth.dto';
-import { eq } from 'drizzle-orm';
 import { JwtService } from '@nestjs/jwt';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     // private usersService: UsersService,
     private jwtService: JwtService,
+    private usersService: UsersService,
   ) {}
 
   async register(registerAuthDto: RegisterAuthDto) {
@@ -40,25 +41,19 @@ export class AuthService {
   }
 
   async login(loginAuthDto: LoginAuthDto) {
-    const user = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.username, loginAuthDto.username))
-      .limit(1);
-
-    if (user.length === 0) {
-      throw new BadRequestException('Invalid username of password.');
-    }
+    const user = await this.usersService.findOneUserByUsername({
+      username: loginAuthDto.username,
+    });
 
     const isPasswordValid = await argon2.verify(
-      user[0].password_hash,
+      user.password_hash,
       loginAuthDto.password,
     );
     if (!isPasswordValid) {
       throw new BadRequestException('Invalid username of password.');
     }
 
-    const jwtToken = await this.jwtService.signAsync(user[0]);
+    const jwtToken = await this.jwtService.signAsync(user);
     return { token: jwtToken };
   }
 }
