@@ -1,7 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { RegisterAuthDto } from './dto/register-auth.dto';
-import db from 'lib/drizzle';
-import { usersTable } from 'lib/drizzle/schema';
 import * as argon2 from 'argon2';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -17,15 +15,11 @@ export class AuthService {
 
   async register(registerAuthDto: RegisterAuthDto) {
     const passwordHash = await generatePasswordHash(registerAuthDto.password);
-
-    const [createdUser] = await db
-      .insert(usersTable)
-      .values({
-        username: registerAuthDto.username,
-        email: registerAuthDto.email,
-        password_hash: passwordHash,
-      })
-      .returning();
+    const createdUser = await this.usersService.createUser({
+      username: registerAuthDto.username,
+      email: registerAuthDto.email,
+      password_hash: passwordHash,
+    });
 
     return createdUser;
   }

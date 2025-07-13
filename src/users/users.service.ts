@@ -4,6 +4,12 @@ import db from 'lib/drizzle';
 import { eq } from 'drizzle-orm';
 import { usersTable } from 'lib/drizzle/schema';
 
+type CreateUserParas = {
+  username: string;
+  email: string;
+  password_hash: string;
+};
+
 @Injectable()
 export class UsersService {
   async findOneUserByUsername(userInfo: FindOneUserDto) {
@@ -22,6 +28,24 @@ export class UsersService {
     } catch (error) {
       console.error(error);
       throw new UnauthorizedException('Failed to login');
+    }
+  }
+
+  async createUser({ username, email, password_hash }: CreateUserParas) {
+    try {
+      const [createdUser] = await db
+        .insert(usersTable)
+        .values({
+          username,
+          email,
+          password_hash,
+        })
+        .returning();
+
+      return createdUser;
+    } catch (error) {
+      console.error(error);
+      throw new UnauthorizedException('Failed to create user');
     }
   }
 }
