@@ -1,7 +1,8 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterAuthDto } from './dto/register-auth.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
+import { Response } from 'express';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -12,7 +13,15 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() loginAuthDto: LoginAuthDto) {
-    return this.authService.login(loginAuthDto);
+  login(
+    @Body() loginAuthDto: LoginAuthDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.login(loginAuthDto, response);
+  }
+
+  @Post('jwt')
+  verifyJwt(@Body() body: { token: string }) {
+    return this.authService.verifyToken(body.token);
   }
 }
