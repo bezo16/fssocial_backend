@@ -1,10 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { RegisterAuthDto } from './dto/register-auth.dto';
-import * as argon2 from 'argon2';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import generatePasswordHash from 'lib/argon2/generatePasswordHash';
+import verifyPassword from 'lib/auth/verifyPassword';
 
 @Injectable()
 export class AuthService {
@@ -29,13 +29,7 @@ export class AuthService {
       username: loginAuthDto.username,
     });
 
-    const isPasswordValid = await argon2.verify(
-      user.password_hash,
-      loginAuthDto.password,
-    );
-    if (!isPasswordValid) {
-      throw new BadRequestException('Invalid username of password.');
-    }
+    await verifyPassword(user.password_hash, loginAuthDto.password);
 
     const jwtToken = await this.jwtService.signAsync(user);
     return { token: jwtToken };
