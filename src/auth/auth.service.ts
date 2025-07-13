@@ -6,28 +6,18 @@ import * as argon2 from 'argon2';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
+import generatePasswordHash from 'lib/argon2/generatePasswordHash';
 
 @Injectable()
 export class AuthService {
   constructor(
-    // private usersService: UsersService,
     private jwtService: JwtService,
     private usersService: UsersService,
   ) {}
 
   async register(registerAuthDto: RegisterAuthDto) {
-    let passwordHash: string;
-    try {
-      passwordHash = await argon2.hash(registerAuthDto.password, {
-        type: argon2.argon2id,
-        memoryCost: 2 ** 16,
-        timeCost: 4,
-        parallelism: 1,
-      });
-    } catch (err) {
-      console.error('Error hashing password with Argon2:', err);
-      throw new BadRequestException('Failed to hash password.');
-    }
+    const passwordHash = await generatePasswordHash(registerAuthDto.password);
+
     const [createdUser] = await db
       .insert(usersTable)
       .values({
