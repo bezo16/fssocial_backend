@@ -1,20 +1,21 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { RegisterAuthDto } from './dto/register-auth.dto';
 import db from 'lib/drizzle';
 import { usersTable } from 'lib/drizzle/schema';
 import * as argon2 from 'argon2';
+import { LoginAuthDto } from './dto/login-auth.dto';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class AuthService {
-  async register(createAuthDto: CreateAuthDto) {
+  async register(registerAuthDto: RegisterAuthDto) {
     let passwordHash: string;
     try {
-      passwordHash = await argon2.hash(createAuthDto.password, {
-        type: argon2.argon2id, // Odporúčaný typ pre heslá
-        memoryCost: 2 ** 16, // 65536 kB = 64 MB (príklad, môžeš prispôsobiť)
-        timeCost: 4, // Počet iterácií
-        parallelism: 1, // Počet paralelných vlákien
-        // saltLength: 16,      // Predvolená dĺžka soli je 16, môžeš ju zmeniť
+      passwordHash = await argon2.hash(registerAuthDto.password, {
+        type: argon2.argon2id,
+        memoryCost: 2 ** 16,
+        timeCost: 4,
+        parallelism: 1,
       });
     } catch (err) {
       console.error('Error hashing password with Argon2:', err);
@@ -23,8 +24,8 @@ export class AuthService {
     const [createdUser] = await db
       .insert(usersTable)
       .values({
-        username: createAuthDto.username,
-        email: createAuthDto.email,
+        username: registerAuthDto.username,
+        email: registerAuthDto.email,
         password_hash: passwordHash,
       })
       .returning();
@@ -32,7 +33,25 @@ export class AuthService {
     return createdUser;
   }
 
-  login() {
-    return `This action login user`;
+  async login(loginAuthDto: LoginAuthDto) {
+    const user = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.username, loginAuthDto.username))
+      .limit(1);
+
+    if (user.length === 0) {
+      throw new BadRequestException('Invalid username of password.');
+    }
+
+    const isPasswordValid = await argon2.verify(
+      user[0].password_hash,
+      loginAuthDto.password,
+    );
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid username of password.');
+    }
+
+    return user[0];
   }
 }
