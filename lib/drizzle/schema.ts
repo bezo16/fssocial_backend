@@ -1,4 +1,11 @@
-import { pgTable, varchar, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  varchar,
+  timestamp,
+  uuid,
+  boolean,
+  text,
+} from 'drizzle-orm/pg-core';
 
 export const usersTable = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -10,3 +17,18 @@ export const usersTable = pgTable('users', {
 });
 
 export type User = typeof usersTable.$inferSelect;
+
+export const feedTable = pgTable('feed', {
+  id: uuid().primaryKey().defaultRandom(),
+  title: text().notNull(),
+  content: text(),
+  authorId: uuid('author_id')
+    .notNull()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
+  imageUrl: text('image_url'),
+  isPublished: boolean('is_published').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export type FeedPost = typeof feedTable.$inferSelect;
