@@ -38,7 +38,7 @@ export class AuthService {
     response.cookie('authToken', token, {
       httpOnly: false,
       secure: false,
-      maxAge: 3600000,
+      maxAge: 36000000,
       sameSite: 'lax',
       path: '/',
     });

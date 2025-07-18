@@ -18,7 +18,7 @@ export const usersTable = pgTable('users', {
 
 export type User = typeof usersTable.$inferSelect;
 
-export const feedTable = pgTable('feed', {
+export const postsTable = pgTable('posts', {
   id: uuid().primaryKey().defaultRandom(),
   title: text().notNull(),
   content: text(),
@@ -31,4 +31,4 @@ export const feedTable = pgTable('feed', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export type FeedPost = typeof feedTable.$inferSelect;
+export type FeedPost = typeof postsTable.$inferSelect;
