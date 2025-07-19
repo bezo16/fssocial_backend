@@ -46,4 +46,16 @@ export class UsersService {
 
     return users;
   }
+
+  async findUserById(id: string) {
+    const user = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, id))
+      .limit(1);
+
+    if (user.length === 0) throw new UnauthorizedException('User not found');
+
+    return user[0];
+  }
 }
