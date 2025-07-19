@@ -31,4 +31,4 @@ export const postsTable = pgTable('posts', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export type FeedPost = typeof postsTable.$inferSelect;
+export type Post = typeof postsTable.$inferSelect;
