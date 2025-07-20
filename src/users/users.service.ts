@@ -13,6 +13,7 @@ type CreateUserParas = {
 @Injectable()
 export class UsersService {
   async findOneUserByUsername(userInfo: FindOneUserDto) {
+    // Only used for login purposes, not send to client
     const user = await db
       .select()
       .from(usersTable)
@@ -39,7 +40,13 @@ export class UsersService {
 
   async findRandomUsers() {
     const users = await db
-      .select()
+      .select({
+        id: usersTable.id,
+        username: usersTable.username,
+        email: usersTable.email,
+        created_at: usersTable.created_at,
+        updated_at: usersTable.updated_at,
+      })
       .from(usersTable)
       .orderBy(sql`RANDOM()`)
       .limit(10);
@@ -53,7 +60,6 @@ export class UsersService {
         id: usersTable.id,
         username: usersTable.username,
         email: usersTable.email,
-        password_hash: usersTable.password_hash,
         created_at: usersTable.created_at,
         updated_at: usersTable.updated_at,
         followsCount: sql<number>`(
@@ -83,7 +89,13 @@ export class UsersService {
 
   async searchUsers(query: string) {
     const results = await db
-      .select()
+      .select({
+        id: usersTable.id,
+        username: usersTable.username,
+        email: usersTable.email,
+        created_at: usersTable.created_at,
+        updated_at: usersTable.updated_at,
+      })
       .from(usersTable)
       .where(sql`${usersTable.username} ILIKE '%' || ${query} || '%'`)
       .limit(10);
