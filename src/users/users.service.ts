@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { FindOneUserDto } from './dto/find-one-user.dto';
 import db from 'lib/drizzle';
 import { eq, sql } from 'drizzle-orm';
-import { usersTable } from 'lib/drizzle/schema';
+import { usersTable, followsTable } from 'lib/drizzle/schema';
 
 type CreateUserParas = {
   username: string;
@@ -47,15 +47,38 @@ export class UsersService {
     return users;
   }
 
-  async findUserById(id: string) {
-    const user = await db
-      .select()
+  async findUserById(id: string, currentUserId: string) {
+    // Compose a single query for user, followsCount, and isFollowed
+    const [result] = await db
+      .select({
+        id: usersTable.id,
+        username: usersTable.username,
+        email: usersTable.email,
+        password_hash: usersTable.password_hash,
+        created_at: usersTable.created_at,
+        updated_at: usersTable.updated_at,
+        followsCount: sql<number>`(
+          SELECT COUNT(*) FROM ${followsTable}
+          WHERE ${followsTable.followingId} = ${id}
+        )`,
+        isFollowed: currentUserId
+          ? sql<boolean>`EXISTS (
+              SELECT 1 FROM ${followsTable}
+              WHERE ${followsTable.followingId} = ${id}
+                AND ${followsTable.followerId} = ${currentUserId}
+            )`
+          : sql<boolean>`false`,
+      })
       .from(usersTable)
       .where(eq(usersTable.id, id))
       .limit(1);
 
-    if (user.length === 0) throw new UnauthorizedException('User not found');
+    if (!result) throw new UnauthorizedException('User not found');
 
-    return user[0];
+    return {
+      ...result,
+      followsCount: Number(result.followsCount) || 0,
+      isFollowed: Boolean(result.isFollowed),
+    };
   }
 }

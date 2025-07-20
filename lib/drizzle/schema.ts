@@ -5,6 +5,7 @@ import {
   uuid,
   boolean,
   text,
+  primaryKey,
 } from 'drizzle-orm/pg-core';
 
 export const usersTable = pgTable('users', {
@@ -32,3 +33,23 @@ export const postsTable = pgTable('posts', {
 });
 
 export type Post = typeof postsTable.$inferSelect;
+
+export const followsTable = pgTable(
+  'follows',
+
+  {
+    followerId: uuid('follower_id')
+      .notNull()
+      .references(() => usersTable.id, { onDelete: 'cascade' }),
+    followingId: uuid('following_id')
+      .notNull()
+      .references(() => usersTable.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.followerId, table.followingId] }),
+    };
+  },
+);
