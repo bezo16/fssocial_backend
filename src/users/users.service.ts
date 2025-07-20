@@ -48,7 +48,6 @@ export class UsersService {
   }
 
   async findUserById(id: string, currentUserId: string) {
-    // Compose a single query for user, followsCount, and isFollowed
     const [result] = await db
       .select({
         id: usersTable.id,
@@ -80,5 +79,15 @@ export class UsersService {
       followsCount: Number(result.followsCount) || 0,
       isFollowed: Boolean(result.isFollowed),
     };
+  }
+
+  async searchUsers(query: string) {
+    const results = await db
+      .select()
+      .from(usersTable)
+      .where(sql`${usersTable.username} ILIKE '%' || ${query} || '%'`)
+      .limit(10);
+
+    return results;
   }
 }
