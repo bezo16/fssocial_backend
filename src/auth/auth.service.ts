@@ -39,7 +39,7 @@ export class AuthService {
       httpOnly: false,
       secure: false,
       maxAge: 36000000,
-      sameSite: 'lax',
+      sameSite: 'none',
       path: '/',
     });
     return { token };
