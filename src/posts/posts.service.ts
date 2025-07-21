@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { desc, eq } from 'drizzle-orm';
 import db from 'lib/drizzle';
-import { postsTable } from 'lib/drizzle/schema';
+import { postsTable, usersTable } from 'lib/drizzle/schema';
+import { followsTable } from 'lib/drizzle/schema';
 import { CreatePostDto } from './dto/create-post.dto';
 
 @Injectable()
@@ -26,5 +27,25 @@ export class PostsService {
       .returning();
 
     return createdPost;
+  }
+
+  async findFeedPosts(userId: string) {
+    return await db
+      .select({
+        post: postsTable,
+        author: {
+          id: usersTable.id,
+          username: usersTable.username,
+        },
+      })
+      .from(postsTable)
+      .innerJoin(
+        followsTable,
+        eq(postsTable.authorId, followsTable.followingId),
+      )
+      .innerJoin(usersTable, eq(postsTable.authorId, usersTable.id))
+      .where(eq(followsTable.followerId, userId))
+      .orderBy(desc(postsTable.createdAt))
+      .limit(20);
   }
 }

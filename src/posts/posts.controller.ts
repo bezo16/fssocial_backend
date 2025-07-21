@@ -15,6 +15,12 @@ export class PostsController {
     return this.postsService.findAll(request.user!.id);
   }
 
+  @Get('feed')
+  @UseGuards(JwtAuthGuard)
+  async findFeedPosts(@Req() request: Request) {
+    return this.postsService.findFeedPosts(request.user!.id);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   async createPost(
