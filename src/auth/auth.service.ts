@@ -36,8 +36,8 @@ export class AuthService {
     const token = await this.jwtService.signAsync(user);
 
     response.cookie('authToken', token, {
-      httpOnly: false,
-      secure: false,
+      httpOnly: true,
+      secure: true,
       maxAge: 36000000,
       sameSite: 'none',
       path: '/',
