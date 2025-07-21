@@ -7,6 +7,9 @@ import { sql } from 'drizzle-orm';
 @Injectable()
 export class FollowsService {
   followUser(createFollowDto: CreateFollowDto, userId: string) {
+    if (userId === createFollowDto.followingId) {
+      throw new Error('Cannot follow yourself');
+    }
     return db.insert(followsTable).values({
       followerId: userId,
       followingId: createFollowDto.followingId,
