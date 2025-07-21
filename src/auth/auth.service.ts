@@ -41,6 +41,10 @@ export class AuthService {
       maxAge: 36000000,
       sameSite: 'none',
       path: '/',
+      domain: process.env.FRONTEND_URL?.replace('http://', '').replace(
+        'https://',
+        '',
+      ),
     });
     return { token };
   }
