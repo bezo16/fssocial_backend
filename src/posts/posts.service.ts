@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import db from 'lib/drizzle';
 import { postsTable, usersTable } from 'lib/drizzle/schema';
 import { followsTable } from 'lib/drizzle/schema';
@@ -36,6 +36,16 @@ export class PostsService {
         author: {
           id: usersTable.id,
           username: usersTable.username,
+        },
+        likes: {
+          count: sql`(
+            SELECT COUNT(*) FROM likes
+            WHERE likes.target_type = 'post' AND likes.target_id = ${postsTable.id}
+          )`.as('count'),
+          isLiked: sql`EXISTS(
+            SELECT 1 FROM likes
+            WHERE likes.target_type = 'post' AND likes.target_id = ${postsTable.id} AND likes.user_id = ${userId}
+            )`.as('isLiked'),
         },
       })
       .from(postsTable)

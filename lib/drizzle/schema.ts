@@ -6,6 +6,7 @@ import {
   boolean,
   text,
   primaryKey,
+  pgEnum,
 } from 'drizzle-orm/pg-core';
 
 export const usersTable = pgTable('users', {
@@ -53,3 +54,30 @@ export const followsTable = pgTable(
     };
   },
 );
+
+export const likeTargetTypeEnum = pgEnum('like_target_type', [
+  'post',
+  'profile',
+  'comment',
+]);
+
+export const likesTable = pgTable(
+  'likes',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => usersTable.id, { onDelete: 'cascade' }),
+    targetType: likeTargetTypeEnum('target_type').notNull(),
+    targetId: uuid('target_id').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({
+        columns: [table.userId, table.targetType, table.targetId],
+      }),
+    };
+  },
+);
+
+export type Like = typeof likesTable.$inferSelect;
