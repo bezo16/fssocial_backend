@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { desc, eq, sql } from 'drizzle-orm';
 import db from 'lib/drizzle';
-import { postsTable, usersTable } from 'lib/drizzle/schema';
+import { postsTable, usersTable, commentsTable } from 'lib/drizzle/schema';
 import { followsTable } from 'lib/drizzle/schema';
 import { CreatePostDto } from './dto/create-post.dto';
 
@@ -47,6 +47,15 @@ export class PostsService {
             WHERE likes.target_type = 'post' AND likes.target_id = ${postsTable.id} AND likes.user_id = ${userId}
             )`.as('isLiked'),
         },
+        comments: sql`(
+          SELECT json_agg(row_to_json(c)) FROM (
+            SELECT ${commentsTable}.*, json_build_object('username', ${usersTable}.username) AS author
+            FROM ${commentsTable}
+            JOIN ${usersTable} ON ${commentsTable}.user_id = ${usersTable}.id
+            WHERE ${commentsTable}.target_type = 'post' AND ${commentsTable}.target_id = ${postsTable.id}
+            ORDER BY ${commentsTable}.created_at ASC
+          ) c
+        )`.as('comments'),
       })
       .from(postsTable)
       .innerJoin(

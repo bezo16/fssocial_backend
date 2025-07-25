@@ -81,3 +81,19 @@ export const likesTable = pgTable(
 );
 
 export type Like = typeof likesTable.$inferSelect;
+
+export const commentTypeEnum = pgEnum('comment_type', ['post', 'profile']);
+
+export const commentsTable = pgTable('comments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
+  targetType: commentTypeEnum('target_type').notNull(),
+  targetId: uuid('target_id').notNull(),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export type Comment = typeof commentsTable.$inferSelect;
