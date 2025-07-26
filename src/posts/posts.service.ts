@@ -49,7 +49,12 @@ export class PostsService {
         },
         comments: sql`(
           SELECT json_agg(row_to_json(c)) FROM (
-            SELECT ${commentsTable}.*, json_build_object('username', ${usersTable}.username) AS author
+            SELECT 
+              ${commentsTable}.*, 
+              json_build_object(
+                'id', ${usersTable}.id,
+                'username', ${usersTable}.username
+              ) AS author
             FROM ${commentsTable}
             JOIN ${usersTable} ON ${commentsTable}.user_id = ${usersTable}.id
             WHERE ${commentsTable}.target_type = 'post' AND ${commentsTable}.target_id = ${postsTable.id}
