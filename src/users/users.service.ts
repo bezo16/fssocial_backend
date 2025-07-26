@@ -87,6 +87,33 @@ export class UsersService {
     };
   }
 
+  async findUserMe(userId: string) {
+    const [result] = await db
+      .select({
+        id: usersTable.id,
+        username: usersTable.username,
+        email: usersTable.email,
+        created_at: usersTable.created_at,
+        updated_at: usersTable.updated_at,
+        followsCount: sql<number>`(
+          SELECT COUNT(*) FROM ${followsTable}
+          WHERE ${followsTable.followingId} = ${userId}
+        )`,
+        isFollowed: sql<boolean>`false`,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.id, userId))
+      .limit(1);
+
+    if (!result) throw new UnauthorizedException('User not found');
+
+    return {
+      ...result,
+      followsCount: Number(result.followsCount) || 0,
+      isFollowed: false,
+    };
+  }
+
   async searchUsers(query: string) {
     const results = await db
       .select({

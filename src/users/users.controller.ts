@@ -13,6 +13,12 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getUserMe(@Req() request: Request) {
+    return this.usersService.findUserMe(request.user?.id as string);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getUserById(@Param('id') id: string, @Req() request: Request) {
     return this.usersService.findUserById(id, request.user?.id as string);
