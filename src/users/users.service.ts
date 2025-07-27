@@ -12,6 +12,24 @@ type CreateUserParas = {
 
 @Injectable()
 export class UsersService {
+  async updateUserMe(
+    userId: string,
+    body: { bio?: string; avatarUrl?: string },
+  ) {
+    // aktualizuje bio/avatarUrl podľa body
+    const updateData: Record<string, any> = {};
+    if (typeof body.bio === 'string') updateData.bio = body.bio;
+    if (typeof body.avatarUrl === 'string')
+      updateData.avatarUrl = body.avatarUrl;
+    if (Object.keys(updateData).length === 0)
+      return { success: false, message: 'No data to update' };
+    const [updatedUser] = await db
+      .update(usersTable)
+      .set(updateData)
+      .where(eq(usersTable.id, userId))
+      .returning();
+    return updatedUser;
+  }
   async findOneUserByUsername(userInfo: FindOneUserDto) {
     // Only used for login purposes, not send to client
     const user = await db
@@ -93,6 +111,8 @@ export class UsersService {
         id: usersTable.id,
         username: usersTable.username,
         email: usersTable.email,
+        avatarUrl: usersTable.avatarUrl,
+        bio: usersTable.bio,
         created_at: usersTable.created_at,
         updated_at: usersTable.updated_at,
         followsCount: sql<number>`(
