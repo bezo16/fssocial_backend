@@ -21,11 +21,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Patch('me')
-  async updateUserMe(
-    @Req() request: Request,
-    @Body() body: { bio?: string; avatarUrl?: string },
-  ) {
-    // očakáva sa JSON body: { bio?: string, avatarUrl?: string }
+  async updateUserMe(@Req() request: Request, @Body() body: { bio?: string }) {
     return await this.usersService.updateUserMe(
       request.user?.id as string,
       body,

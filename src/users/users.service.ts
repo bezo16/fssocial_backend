@@ -12,15 +12,9 @@ type CreateUserParas = {
 
 @Injectable()
 export class UsersService {
-  async updateUserMe(
-    userId: string,
-    body: { bio?: string; avatarUrl?: string },
-  ) {
-    // aktualizuje bio/avatarUrl podľa body
+  async updateUserMe(userId: string, body: { bio?: string }) {
     const updateData: Record<string, any> = {};
-    if (typeof body.bio === 'string') updateData.bio = body.bio;
-    if (typeof body.avatarUrl === 'string')
-      updateData.avatarUrl = body.avatarUrl;
+    if (body.bio) updateData.bio = body.bio;
     if (Object.keys(updateData).length === 0)
       return { success: false, message: 'No data to update' };
     const [updatedUser] = await db
