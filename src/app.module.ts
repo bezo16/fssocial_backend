@@ -8,6 +8,8 @@ import { PostsModule } from './posts/posts.module';
 import { FollowsModule } from './follows/follows.module';
 import { LikesModule } from './likes/likes.module';
 import { CommentsModule } from './comments/comments.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -18,6 +20,9 @@ import { CommentsModule } from './comments/comments.module';
     FollowsModule,
     LikesModule,
     CommentsModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'public'),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

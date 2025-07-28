@@ -24,6 +24,20 @@ export class UsersService {
       .returning();
     return updatedUser;
   }
+
+  async updateUserMeAvatar(userId: string, file: Express.Multer.File) {
+    if (!file) {
+      throw new Error('No file uploaded');
+    }
+    const avatarUrl = `/avatars/${file.filename}`;
+    const [updatedUser] = await db
+      .update(usersTable)
+      .set({ avatarUrl })
+      .where(eq(usersTable.id, userId))
+      .returning();
+    return updatedUser;
+  }
+
   async findOneUserByUsername(userInfo: FindOneUserDto) {
     // Only used for login purposes, not send to client
     const user = await db

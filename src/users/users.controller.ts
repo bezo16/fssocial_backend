@@ -1,8 +1,20 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { Patch, Body } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'lib/auth/JwtAuthGuard';
 import { Request } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import pfpStorage from 'lib/multer/pfpStorage';
 
 @Controller('users')
 export class UsersController {
@@ -26,6 +38,16 @@ export class UsersController {
       request.user?.id as string,
       body,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', { storage: pfpStorage }))
+  @Post('me/avatar')
+  async updateUserMeAvatar(
+    @Req() request: Request,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return await this.usersService.updateUserMeAvatar(request.user!.id, file);
   }
 
   @UseGuards(JwtAuthGuard)
