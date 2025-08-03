@@ -99,3 +99,26 @@ export const commentsTable = pgTable('comments', {
 });
 
 export type Comment = typeof commentsTable.$inferSelect;
+
+export const notificationTypeEnum = pgEnum('notification_type', [
+  'like',
+  'comment',
+  'follow',
+  'custom',
+]);
+
+export const notificationsTable = pgTable('notifications', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  toUserId: uuid('to_user_id')
+    .notNull()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
+  fromUserId: uuid('from_user_id')
+    .notNull()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
+  type: notificationTypeEnum('type').notNull(),
+  message: text('message').notNull(),
+  read: boolean('read').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export type NotificationDb = typeof notificationsTable.$inferSelect;

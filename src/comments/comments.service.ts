@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCommentDto } from './dto/create-comment.dto';
+import { NotificationsService } from '../notifications/notifications.service';
+import { postsTable } from 'lib/drizzle/schema';
+import { CreateCommentDto, CommentTargetType } from './dto/create-comment.dto';
 import { commentsTable } from 'lib/drizzle/schema';
 import db from 'lib/drizzle';
 import { eq, and } from 'drizzle-orm';
 
 @Injectable()
 export class CommentsService {
+  constructor(private readonly notificationsService: NotificationsService) {}
+
   async create(createCommentDto: CreateCommentDto, userId: string) {
     const { targetType, targetId, content } = createCommentDto;
 
@@ -18,6 +22,24 @@ export class CommentsService {
         content,
       })
       .returning();
+
+    // Notifikácia pre autora postu pri komentári na post
+    if (targetType === CommentTargetType.POST) {
+      const [post] = await db
+        .select()
+        .from(postsTable)
+        .where(eq(postsTable.id, targetId));
+      if (post && post.authorId !== userId) {
+        await this.notificationsService.create({
+          toUserId: post.authorId,
+          fromUserId: userId,
+          type: 'comment',
+          message: `Váš príspevok bol komentovaný.`,
+        });
+      }
+    }
+
+    // TODO: Podobne pre komentár na profil
 
     return comment;
   }
