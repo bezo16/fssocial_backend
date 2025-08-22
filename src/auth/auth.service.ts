@@ -11,8 +11,8 @@ import { User } from 'lib/drizzle/schema';
 @Injectable()
 export class AuthService {
   constructor(
-    private jwtService: JwtService,
-    private usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly usersService: UsersService,
   ) {}
 
   async register(registerAuthDto: RegisterAuthDto) {

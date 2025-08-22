@@ -25,7 +25,6 @@ export class LikesService {
         .where(eq(postsTable.id, createLikeDto.targetId));
       if (post) toUserId = post.authorId;
     }
-    // TODO: Podobne pre profile, comment
 
     if (toUserId && toUserId !== userId) {
       await this.notificationsService.create({

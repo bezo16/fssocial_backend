@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { NotificationsService } from '../notifications/notifications.service';
-import { postsTable } from 'lib/drizzle/schema';
+import { postsTable, commentsTable } from 'lib/drizzle/schema';
 import { CreateCommentDto, CommentTargetType } from './dto/create-comment.dto';
-import { commentsTable } from 'lib/drizzle/schema';
 import db from 'lib/drizzle';
 import { eq, and } from 'drizzle-orm';
 
@@ -38,8 +37,6 @@ export class CommentsService {
         });
       }
     }
-
-    // TODO: Podobne pre komentár na profil
 
     return comment;
   }

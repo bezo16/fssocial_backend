@@ -8,8 +8,9 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  Patch,
+  Body,
 } from '@nestjs/common';
-import { Patch, Body } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'lib/auth/JwtAuthGuard';
 import { Request } from 'express';
