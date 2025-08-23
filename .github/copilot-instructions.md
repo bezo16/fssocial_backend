@@ -1,15 +1,5 @@
 # Social Platform Full Stack Project Guide
 
-## Table of Contents
-- [Quick Orientation](#quick-orientation)
-- [High-level Architecture](#high-level-architecture)
-- [Developer Workflows & Commands](#developer-workflows--commands)
-- [Important Environment Variables](#important-environment-variables)
-- [Project-specific Conventions & Gotchas](#project-specific-conventions--gotchas)
-- [Files to Inspect](#files-to-inspect-for-common-patterns-examples)
-- [Making Safe Changes](#how-to-make-safe-automated-changes)
-- [Example Code Snippets](#example-code-snippets-search-targets)
-- [Troubleshooting](#troubleshooting)
 
 ## Quick orientation
 
