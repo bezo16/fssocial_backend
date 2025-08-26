@@ -25,6 +25,32 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Dev setup
+
+Before running the application, you need to set up your environment variables:
+
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit the `.env` file and update the following required variables:
+   - `DATABASE_URL` - Set to your PostgreSQL connection string
+   - `JWT_SECRET` - Replace with a secure random string (you can generate one using `openssl rand -hex 32`)
+   - `FRONTEND_URL` - Set to your frontend URL (default: http://localhost:3000)
+
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run start:dev
+   ```
+
+The server should start and bind to the configured `PORT` (default: 4000). You should see startup logs indicating successful initialization.
+
 ## Project setup
 
 ```bash
