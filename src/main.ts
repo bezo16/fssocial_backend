@@ -4,6 +4,8 @@ import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import helmet from 'helmet';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 
 const config = new DocumentBuilder()
   .setTitle('Social Platform API')
@@ -16,7 +18,13 @@ const config = new DocumentBuilder()
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // middleware
+  // Security middleware
+  app.use(helmet());
+
+  // Global exception filter
+  app.useGlobalFilters(new GlobalExceptionFilter());
+
+  // Other middleware
   app.use(cookieParser());
   app.enableCors({
     origin: process.env.FRONTEND_URL,

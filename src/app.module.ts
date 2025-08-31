@@ -10,11 +10,19 @@ import { FollowsModule } from './follows/follows.module';
 import { LikesModule } from './likes/likes.module';
 import { CommentsModule } from './comments/comments.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minute
+        limit: 60, // 60 requests per minute
+      },
+    ]),
     AuthModule,
     UsersModule,
     PostsModule,
@@ -27,6 +35,12 @@ import { join } from 'path';
     NotificationsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
